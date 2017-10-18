@@ -57,9 +57,9 @@ time.sleep(2)
 
 while True:
 
-	Data = JC.UPPRecieve(Socket,verbose=0)
+	Right,Left,Rows = JC.UPPRecieve(Socket,verbose=0)
 
-	Right,Left,Rows = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
+	Right,Left = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
 
 	Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
 

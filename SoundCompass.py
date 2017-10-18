@@ -80,9 +80,9 @@ print('Sistemas listos, iniciando en 2 segundos')
 
 time.sleep(2)
 
-Data = JC.UPPRecieve(Socket,verbose=0)
+Right,Left,Rows = JC.UPPRecieve(Socket,verbose=0)
 
-Right,Left,Rows = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
+Right,Left = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
 
 Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
 
@@ -107,9 +107,9 @@ AnguloPrevio = Angulo
 while True:
 
 	
-	Data = JC.UPPRecieve(Socket,verbose=0)
+	Right,Left,Rows = JC.UPPRecieve(Socket,verbose=0)
 
-	Right,Left,Rows = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
+	Right,Left = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
 
 	Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
 
