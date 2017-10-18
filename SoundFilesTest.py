@@ -34,34 +34,23 @@ from time import sleep
 
 #-----Variables Globales-----
 
-global Rigth,Left,Ampel
+global Right,Left,Ampel
 
-SampleRate=44100
-BufferTime=1
-Iteracion=0
 
 
 #-----Hilo Principal-----
 
 JC.PrintClassic()
 
-print('Iniciando Socket UDP...')
-
-JC.KillUDPProcesses()
-
-Socket = JC.ConnectUDP('192.168.0.108',5000)
-
-print('Socket Listo !')
-
 print('Iniciando conexion por UART...')
 
 try:
+	
 	Serial = JC.EstablishConnectionSiOSi()
 
 except:
 
 	print 'No hay dispositivos Arduino conectados'
-
 time.sleep(1)
 
 print('Probando Servos...')
@@ -80,9 +69,9 @@ print('Sistemas listos, iniciando en 2 segundos')
 
 time.sleep(2)
 
-Data = JC.UPPRecieve(Socket,verbose=0)
+DataWAV,SampleRate,Rows,Columns=JC.WAV_2_Numpy('i45.wav')
 
-Right,Left,Rows = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
+Right,Left = JC.DataFormatForCorrelation(DataWAV,SampleRate)
 
 Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
 
@@ -96,34 +85,46 @@ try:
 
 except:
 
-	DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
-
-	Angulo = JC.AngleParser(Angulo)
-
-	JC.AngleSetPoint(Angulo,Serial)
+	print 'Error de Calculo :(' 
 
 AnguloPrevio = Angulo
 
-while True:
+print Angulo
 
-	
-	Data = JC.UPPRecieve(Socket,verbose=0)
 
-	Right,Left,Rows = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
+time.sleep(2)
 
-	Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
+DataWAV,SampleRate,Rows,Columns = JC.WAV_2_Numpy('paneo.wav')
+print ''
+print 'Muestras del Paneo: ',Rows
+BufferTime=1
+Iteracion=0
 
-	try: 
+for x in range(0,Rows,int(SampleRate*BufferTime)):
 
-		DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
-		
-		Angulo=AngleParser(Angulo)
+	Right,Left = JC.DataFormatForCorrelation(DataWAV[x:x+int(SampleRate*BufferTime),:],int(SampleRate*BufferTime))
 
-		AnguloPrevio = JC.AngleSetPoint_Verify(Angulo,Serial,AnguloPrevio)
+ 	Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
+
+	try:
+
+		DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,BufferTime)
+
+		Angulo = JC.AngleParser(Angulo)
+
+		JC.AngleSetPoint(Angulo,Serial)
+
+		time.sleep(0.1)
 
 	except:
 
-	 	print 'Error on sample'
+		print 'Error de Calculo :(' 
+
+	AnguloPrevio = Angulo
+
+	print Angulo
+
 
 Serial.close()
-Socket.close
+
+

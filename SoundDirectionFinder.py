@@ -51,79 +51,30 @@ JC.KillUDPProcesses()
 
 Socket = JC.ConnectUDP('192.168.0.108',5000)
 
-print('Socket Listo !')
-
-print('Iniciando conexion por UART...')
-
-try:
-	Serial = JC.EstablishConnectionSiOSi()
-
-except:
-
-	print 'No hay dispositivos Arduino conectados'
-
-time.sleep(1)
-
-print('Probando Servos...')
-
-JC.AngleSetPoint(0,Serial)
-
-time.sleep(1)
-
-JC.AngleSetPoint(180,Serial)
-
-time.sleep(1)
-
-JC.AngleSetPoint(90,Serial)
-
 print('Sistemas listos, iniciando en 2 segundos')
 
 time.sleep(2)
 
-Data = JC.UPPRecieve(Socket,verbose=0)
-
-Right,Left,Rows = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
-
-Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
-
-try:
-
-	DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
-
-	Angulo = JC.AngleParser(Angulo)
-
-	JC.AngleSetPoint(Angulo,Serial)
-
-except:
-
-	DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
-
-	Angulo = JC.AngleParser(Angulo)
-
-	JC.AngleSetPoint(Angulo,Serial)
-
-AnguloPrevio = Angulo
-
 while True:
 
-	
 	Data = JC.UPPRecieve(Socket,verbose=0)
 
 	Right,Left,Rows = JC.DataFormatForCorrelationUDP(Left,Right,SampleRate)
 
 	Correlacion,ArgMaxT = JC.FastFourierCorrelationFiltered(Right,Left)
 
-	try: 
+	try:
 
 		DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
-		
-		Angulo=AngleParser(Angulo)
 
-		AnguloPrevio = JC.AngleSetPoint_Verify(Angulo,Serial,AnguloPrevio)
+		Angulo = JC.AngleParser(Angulo)
+
+		print 'El angulo es: ', Angulo
 
 	except:
 
-	 	print 'Error on sample'
+		print 'Error de caluclo :('
+
 
 Serial.close()
 Socket.close

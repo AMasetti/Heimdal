@@ -44,7 +44,7 @@ def AngleSetPoint(Angle,Serial):
 	# Toma como entrada el angulo de set-point y el objeto de 
 	# la conexion serial.
 	
-	Serial.write(chr(Angle))
+	Serial.write(chr(int(Angle)))
 	
 def EstablishConnectionSiOSi():
 	
