@@ -90,7 +90,7 @@ try:
 
 	DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
 
-	Angulo = JC.AngleParser(Angulo)
+	Angulo = JC.AngleParser(AnguloPrevio+Angulo)
 
 	JC.AngleSetPoint(Angulo,Serial)
 
@@ -98,7 +98,7 @@ except:
 
 	DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
 
-	Angulo = JC.AngleParser(Angulo)
+	Angulo = JC.AngleParser(AnguloPrevio+Angulo)
 
 	JC.AngleSetPoint(Angulo,Serial)
 
@@ -117,7 +117,7 @@ while True:
 
 		DeltaT,Angulo = JC.ITDAngleFind(ArgMaxT,Rows,SampleRate,Rows/SampleRate)
 		
-		Angulo=AngleParser(Angulo)
+		Angulo = JC.AngleParser(AnguloPrevio+Angulo)
 
 		AnguloPrevio = JC.AngleSetPoint_Verify(Angulo,Serial,AnguloPrevio)
 

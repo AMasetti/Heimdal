@@ -1,4 +1,4 @@
-#               _ _   _ _____  
+#  ______ _____ ______ _____                     _    _ _   _ _____  
 # |  ____/ ____|  ____|_   _|   /\              | |  | | \ | |  __ \ 
 # | |__ | |    | |__    | |    /  \     ______  | |  | |  \| | |__) |
 # |  __|| |    |  __|   | |   / /\ \   |______| | |  | | . ` |  _  / 
@@ -16,7 +16,7 @@ import JONICASLib as JC
 import time
 import serial
 import socket
-import numpy as np
+import numpy
 import threading
 from time import sleep
 
@@ -74,10 +74,9 @@ def FFTandAngle():
 		CorrelacionDef=Corr
 		# print len(Corr)
 
-
 #-----Variables Globales-----
 
-
+global Rigth,Left,Ampel
 
 SampleRate=44100
 BufferTime=1
@@ -93,6 +92,33 @@ print('Iniciando Socket UDP...')
 JC.KillUDPProcesses()
 
 Socket = JC.ConnectUDP('192.168.0.108',5000)
+
+print('Socket Listo !')
+
+print('Iniciando conexion por UART...')
+
+try:
+	Serial = JC.EstablishConnectionSiOSi()
+
+except:
+
+	print 'No hay dispositivos Arduino conectados'
+
+time.sleep(1)
+
+print('Probando Servos...')
+
+JC.AngleSetPoint(0,Serial)
+
+time.sleep(1)
+
+JC.AngleSetPoint(180,Serial)
+
+time.sleep(1)
+
+JC.AngleSetPoint(90,Serial)
+
+AnguloPrevio=90
 
 print('Iniciando Procesamiento Multi-Hilo')
 
@@ -115,7 +141,6 @@ print('Sistemas listos, iniciando en 2 segundos')
 
 time.sleep(2)
 
-
 while True:
 
 	for i in range(0,len(StackRightDef),1):
@@ -123,7 +148,9 @@ while True:
 
 		DeltaT,Angulo = JC.ITDAngleFind(ArgMaxTDef[i],1764,SampleRate,1764/SampleRate)
 
-		Angulo = JC.AngleParser(Angulo)
+		Angulo = JC.AngleParser(AnguloPrevio+Angulo)
+
+		AnguloPrevio = JC.AngleSetPoint_Verify(Angulo,Serial,AnguloPrevio)
 
 		print i,' El angulo es: ', Angulo
 
